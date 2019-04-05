@@ -1,6 +1,7 @@
 import pygame
 from Sprite import *
 from Weapon import *
+from Zone import *
 '''
 contains the data and functions for the map
 '''
@@ -26,7 +27,7 @@ def draw_map(map_array, character1, character2):
 	character2.sprite.show(gameDisplay)
 	draw_grid()
 
-def load_map(water_coord):
+def load_map(water_coord, zones):
 	#map load
 	#n^2 operation can I make it more efficient?
 	mapFile = open("map1.txt")
@@ -35,10 +36,17 @@ def load_map(water_coord):
 	for row in mapFile:
 		row = row.strip()
 		row_array = []
-		for tile in row:
-			row_array.append(tile)
-		map_array.append(row_array)
-
+		if row[0] == "#": #First checks the line if it designates a zone
+			#Zone line format is "#x1-x2,y1-y2" with x1 and y1 < x2 and y2 respectively
+			dashx = row.find("-",1)
+			dashy = row.find("-",dashx+1)
+			sep = row.find(",")
+			zones.append(Zone(int(row[1:dashx]), int(row[dashx+1:sep]), int(row[sep+1:dashy]), int(row[dashy+1:])))
+		else:
+			for tile in row:	
+				row_array.append(tile)
+			map_array.append(row_array)
+	
 	for i in range(len(map_array)):
 		for j in range(len(map_array[0])):
 			tile = map_array[i][j]
@@ -49,7 +57,7 @@ def load_map(water_coord):
 			elif tile == "w":
 				map_array[i][j] = Sprite((j, i), water_blue)
 				water_coord.append((j,i))
-
+	
 	
 	return map_array
 
@@ -79,4 +87,5 @@ red = (255, 0, 0)
 gray = (211, 211, 211)
 
 water_coord = []
-map_array = load_map(water_coord)
+zones = []
+map_array = load_map(water_coord, zones)
