@@ -9,6 +9,7 @@ from Sprite import *
 from settings import *
 from pygame_functions import *
 from map import *
+from Zone import *
 
 #Classes
 class Character(object):
@@ -35,6 +36,7 @@ class Character(object):
         #temporary
         self.hit_chance = 1
         self.crit_chance = 0
+        self.zone = 0
         
     def adjacent_to(self, other):
         if (self.position[0] + 1, self.position[1]) == other.position:
@@ -137,37 +139,90 @@ class Character(object):
         else:
             self.current_health += amount
 
+    def zone_up(self): #Updates the character's zone to the one it's currently in
+        for zone in zones:
+            if zone.inzone(self.position):
+                self.zone = zone
+                break
 
     #movement funtions
     def moveLeft(self):
         self.position = (self.position[0] - 1, self.position[1])
         self.sprite.x -= tileSize
+        self.zone_up()
     def moveRight(self):
         self.position = (self.position[0] + 1, self.position[1])
         self.sprite.x += tileSize
+        self.zone_up()
     def moveUp(self):
         self.position = (self.position[0], self.position[1] - 1)
         self.sprite.y -= tileSize
+        self.zone_up()
     def moveDown(self):
         self.position = (self.position[0], self.position[1] + 1)
         self.sprite.y += tileSize
+        self.zone_up()
+
+    def check_pathing(self, direction): #Same as check collisions but does not check enemies
+        if direction == "r":
+            if self.sprite.x == 24 * tileSize:
+                return False
+            #checks collision with water
+            for water in water_coord:
+                if (self.position[0] + 1, self.position[1]) == water:
+                    return False
+        if direction == "l":
+            #checks edge of the screen
+            if self.sprite.x == 0:
+                return False
+            for water in water_coord:
+                if (self.position[0] - 1, self.position[1]) == water:
+                    return False
+        if direction == "u":
+            if self.sprite.y == 0:
+                return False
+            for water in water_coord:
+                if (self.position[0] , self.position[1] - 1) == water:
+                    return False
+        if direction == "d":
+            if self.sprite.y == 24 * tileSize:
+                return False
+            for water in water_coord:
+                if (self.position[0] , self.position[1] + 1) == water:
+                    return False	
+        return True
 
     def moveCloser(self, other):
         mov = 3
+        self.zone_up()
         while(mov !=0):
-            xDisp = other.position[0] - self.position[0]
-            yDisp = other.position[1] - self.position[1]
+            if self.zone != other.zone: #When the zones are not the same instead path first to the other zone
+                xDisp = other.zone.xa - self.position[0]
+                yDisp = other.zone.ya - self.position[1]
+            else:
+                xDisp = other.position[0] - self.position[0]
+                yDisp = other.position[1] - self.position[1]
             if not self.adjacent_to(other):
-                if abs(xDisp) > abs(yDisp):
-                    if xDisp > 0:
+                #Advanced checking as to what moves are valid and where the pathing points to.
+                #Ensures a move is always made and that a move in the furthest direction is made (if valid)
+                if abs(xDisp) > abs(yDisp) and ((xDisp > 0 and self.check_pathing("r")) or (xDisp < 0 and self.check_pathing("l"))):
+                    if xDisp > 0 and self.check_pathing("r"):
                         self.moveRight()
-                    if xDisp < 0:
+                    if xDisp < 0 and self.check_pathing("l"):
                         self.moveLeft()
-                else:
-                    if yDisp > 0:
+                elif abs(yDisp) > abs(xDisp) and ((yDisp > 0 and self.check_pathing("d")) or (yDisp < 0 and self.check_pathing("u"))):
+                    if yDisp > 0 and self.check_pathing("d"):
                         self.moveDown()
-                    elif yDisp < 0:
+                    if yDisp < 0 and self.check_pathing("u"):
                         self.moveUp()
+                elif xDisp > 0 and self.check_pathing("r"):
+                    self.moveRight()
+                elif xDisp < 0 and self.check_pathing("l"):
+                    self.moveLeft()
+                elif yDisp > 0 and self.check_pathing("d"):
+                    self.moveDown()
+                elif yDisp < 0 and self.check_pathing("u"):
+                    self.moveUp()
                 updateMapScreen(self, other)
                 time.sleep(1)
                 mov -= 1
