@@ -206,7 +206,7 @@ if __name__ == '__main__':
     points = 15
     percentage_points = 80
     print('Your first opponent')
-    print(str(alm))
+    print2(str(alm))
     print('You have {} stat points to allocate'.format(points))
     name = input('What is your characters name? ').strip()
     health = 15 + add('How many points do you want to add to {}\'s base health of 15? '.format(name), points)
