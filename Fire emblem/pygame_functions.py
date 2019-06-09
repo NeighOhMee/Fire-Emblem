@@ -13,15 +13,15 @@ def message(text, gameDisplay):
     #mess around with the coordinates for the second parameter
     gameDisplay.blit(textRender, (100,600))
     pygame.display.update()
-    #time.sleep(2)
+    time.sleep(2)
 
-def messageBox(text,gameDisplay, fontSize):
+def messageBox(text,gameDisplay, fontSize=12):
 	font = pygame.font.Font("PressStart2P.ttf", fontSize)
 	lineLength = 600
 	pygame.draw.rect(gameDisplay,(255,0,0),[100,600,lineLength,64])
 	characters_per_line = lineLength // fontSize
 	lines = []
-	#parse spaces in string until the length is too long for the line
+	#parse spaces string until the length is too long for the line
 	stringList = text.split(" ")
 	line = ""
 	#print(characters_per_line)
@@ -32,9 +32,16 @@ def messageBox(text,gameDisplay, fontSize):
 			lines.append(line)
 			line = " " + string
 	lines.append(line)
-	x = 600
+	
+	y = 600
 	for messageLine in lines:
-		textRender = font.render(messageLine, True, white)
-		gameDisplay.blit(textRender, (100,x))
-		x+= fontSize
-	pygame.display.update()
+		x = 100
+		for letter in messageLine:
+			textRender = font.render(letter, True, white)
+			gameDisplay.blit(textRender, (x,y))
+			x+= fontSize
+			time.sleep(.09)
+			pygame.display.update()
+		y+= fontSize
+	time.sleep(1)
+	

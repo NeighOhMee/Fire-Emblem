@@ -56,7 +56,7 @@ class Character(object):
         if self.adjacent_to(other):
             gameDisplay.fill(black)
             pygame.display.update()
-            message("Sample Text", gameDisplay)
+            #message("Sample Text", gameDisplay)
             #time.sleep(5)
             hit_chance = self.hit_chance
             crit_chance = self.crit_chance
@@ -68,25 +68,35 @@ class Character(object):
                     damage = (self.magic + self.weapon.mount) - other.resistance
                 print('Hit Chance is {:.0f}% \nCrit Chance is {:.0f}%'.format(hit_chance * 100, crit_chance * 100), flush = True)
                 gameDisplay.fill(black)
-                message('Hit Chance is {:.0f}% \nCrit Chance is {:.0f}%'.format(hit_chance * 100, crit_chance * 100), gameDisplay)
+                messageBox('Hit Chance is {:.0f}% \nCrit Chance is {:.0f}%'.format(hit_chance * 100, crit_chance * 100), gameDisplay)
                 print('{} attacks with the {}'.format(self.name, self.weapon.name), flush = True)
                 gameDisplay.fill(black)
-                message('{} attacks with the {}'.format(self.name, self.weapon.name), gameDisplay)
+                messageBox('{} attacks with the {}'.format(self.name, self.weapon.name), gameDisplay)
                 
                 if random.random() > hit_chance:
                     print('{} missed!'.format(self.name), flush = True)
+                    gameDisplay.fill(black)
+                    messageBox('{} missed!'.format(self.name),gameDisplay)
                 else:
                     #Critial damage multiplier
                     if crit_chance > random.random():
                         damage *= self.weapon.crit_multiplier
                         print('CRITICAL!', flush = True)
+                        gameDisplay.fill(black)
+                        messageBox('CRITICAL!', gameDisplay)
                     other.current_health -= damage
                     print('{} did {} damage!'.format(self.name, damage), flush = True)
+                    gameDisplay.fill(black)
+                    messageBox('{} did {} damage!'.format(self.name, damage),gameDisplay)
                     other.health_check()
                     print('{}\'s health is now {}'.format(other.name, other.current_health), flush = True)
+                    gameDisplay.fill(black)
+                    messageBox('{}\'s health is now {}'.format(other.name, other.current_health),gameDisplay)
                     #checks if the character has no health
                     if other.current_health == 0:
                         print('{} has been slain!'.format(other.name), flush = True)
+                        gameDisplay.fill(black)
+                        messageBox('{} has been slain!'.format(other.name),gameDisplay)
                     #enemy gets to attack next
                     elif depth != 2:
                         print('')
@@ -193,50 +203,50 @@ class Character(object):
         return True
 
     def moveCloser(self, other):
-        mov = 3
         self.zone_up()
-        while(mov !=0):
-            if self.zone != other.zone: #When the zones are not the same instead path first to the other zone
-                xDisp = other.zone.xa - self.position[0]
-                yDisp = other.zone.ya - self.position[1]
-            else:
-                xDisp = other.position[0] - self.position[0]
-                yDisp = other.position[1] - self.position[1]
-            if not self.adjacent_to(other):
-                #Advanced checking as to what moves are valid and where the pathing points to.
-                #Ensures a move is always made and that a move in the furthest direction is made (if valid)
-                if abs(xDisp) > abs(yDisp) and ((xDisp > 0 and self.check_pathing("r")) or (xDisp < 0 and self.check_pathing("l"))):
-                    if xDisp > 0 and self.check_pathing("r"):
-                        self.moveRight()
-                    if xDisp < 0 and self.check_pathing("l"):
-                        self.moveLeft()
-                elif abs(yDisp) > abs(xDisp) and ((yDisp > 0 and self.check_pathing("d")) or (yDisp < 0 and self.check_pathing("u"))):
-                    if yDisp > 0 and self.check_pathing("d"):
-                        self.moveDown()
-                    if yDisp < 0 and self.check_pathing("u"):
-                        self.moveUp()
-                elif xDisp > 0 and self.check_pathing("r"):
+        print(self.zone)
+        print(other.zone)
+        if self.zone != other.zone: #When the zones are not the same instead path first to the other zone
+            xDisp = other.zone.xa - self.position[0]
+            yDisp = other.zone.ya - self.position[1]
+        else:
+            xDisp = other.position[0] - self.position[0]
+            yDisp = other.position[1] - self.position[1]
+        if not self.adjacent_to(other):
+            #Advanced checking as to what moves are valid and where the pathing points to.
+            #Ensures a move is always made and that a move in the furthest direction is made (if valid)
+            if abs(xDisp) > abs(yDisp) and ((xDisp > 0 and self.check_pathing("r")) or (xDisp < 0 and self.check_pathing("l"))):
+                if xDisp > 0 and self.check_pathing("r"):
                     self.moveRight()
-                elif xDisp < 0 and self.check_pathing("l"):
+                if xDisp < 0 and self.check_pathing("l"):
                     self.moveLeft()
-                elif yDisp > 0 and self.check_pathing("d"):
+            elif abs(yDisp) > abs(xDisp) and ((yDisp > 0 and self.check_pathing("d")) or (yDisp < 0 and self.check_pathing("u"))):
+                if yDisp > 0 and self.check_pathing("d"):
                     self.moveDown()
-                elif yDisp < 0 and self.check_pathing("u"):
+                if yDisp < 0 and self.check_pathing("u"):
                     self.moveUp()
-                updateMapScreen(self, other)
-                time.sleep(1)
-                mov -= 1
-            else:
-                break
+            elif xDisp > 0 and self.check_pathing("r"):
+                self.moveRight()
+            elif xDisp < 0 and self.check_pathing("l"):
+                self.moveLeft()
+            elif yDisp > 0 and self.check_pathing("d"):
+                self.moveDown()
+            elif yDisp < 0 and self.check_pathing("u"):
+                self.moveUp()
+            #updateMapScreen(self, other)
+            #time.sleep(1)
+            #mov -= 1
+            return False
+        else:
+            return True
 
 
 #character creation
 alm = Character( 20, 9, 1, 15, 4, 0, 'Alm', (0,0), 1, .10, blue)
 steel_sword = Weapon('steel sword', 'physical', 1)
 alm.equip(steel_sword)
-current_character = alm 
-
-mage = Character( 18, 1, 7, 8, 2, 7, 'Mage', (2,2), .80, .05, blue)
+ 
+mage = Character( 18, 1, 7, 8, 2, 7, 'Mage', (2,2), .80, .05, red)
 fire = Weapon('fire', 'magic', 3)
 mage.equip(fire)
 
@@ -244,4 +254,5 @@ mage.equip(fire)
 zombie = Character( 72, 15, 0, 10, 3, 0, 'Zombie', (18,12), .20, .1, red)
 claws = Weapon('claws', 'physical', 5)
 zombie.equip(claws)
-enemies = [zombie]
+enemies = [zombie, mage]
+allies = [alm]

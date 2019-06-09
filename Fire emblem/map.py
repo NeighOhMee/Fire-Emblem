@@ -16,15 +16,19 @@ def draw_grid():
 	for i in range(0, height, tileSize):
 		pygame.draw.line(gameDisplay, gray, (0,i), (height,i))
 
-def draw_map(map_array, character1, character2):
+def draw_map(map_array, alies, enemies):
 	'''
 	draws the main map
 	'''
 	
 	gameDisplay.fill(white)
 	draw_tiles(map_array)
-	character1.sprite.show(gameDisplay)
-	character2.sprite.show(gameDisplay)
+	for character in alies:
+		character.sprite.show(gameDisplay)
+	for character in enemies:
+		character.sprite.show(gameDisplay)
+	#character1.sprite.show(gameDisplay)
+	#character2.sprite.show(gameDisplay)
 	draw_grid()
 
 def load_map(water_coord, zones):
@@ -66,8 +70,8 @@ def draw_tiles(l):
 		for tile in row:
 			tile.show(gameDisplay)
 
-def updateMapScreen(character1, character2):
-	draw_map(map_array, character1, character2)
+def updateMapScreen(alies, enemies):
+	draw_map(map_array, alies, enemies)
 	pygame.display.update()
 
 pygame.init()

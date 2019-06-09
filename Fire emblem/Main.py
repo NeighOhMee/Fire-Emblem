@@ -14,21 +14,9 @@ import time
 from map import *
 
 #functions
-'''
-def draw_grid():
-	
-	#Draws the game grid
-
-	#vertical
-	for i in range(0, width, tileSize):
-		pygame.draw.line(gameDisplay, gray,(i,0), (i,width))
-	#horizontal
-	for i in range(0, height, tileSize):
-		pygame.draw.line(gameDisplay, gray, (0,i), (height,i))
-'''
 def check_collisions(character, direction):
 	'''
-	keeps the user from moving into the same spot as an enemy
+	keeps the user from moving into the same spot as an enemy or ally
 	returns
 	'''
 	if direction == "r":
@@ -73,101 +61,18 @@ def check_collisions(character, direction):
 				return False	
 
 	return True
-'''
-def draw_map(map_array):
-	
-	#draws the main map
-	
-	
-	gameDisplay.fill(white)
-	draw_tiles(map_array)
-	alm.sprite.show(gameDisplay)
-	zombie.sprite.show(gameDisplay)
-	draw_grid()
 
-def load_map(water_coord):
-	#map load
-	#n^2 operation can I make it more efficient?
-	mapFile = open("map1.txt")
-	map_array = []
-	#create map_array
-	for row in mapFile:
-		row = row.strip()
-		row_array = []
-		for tile in row:
-			row_array.append(tile)
-		map_array.append(row_array)
 
-	for i in range(len(map_array)):
-		for j in range(len(map_array[0])):
-			tile = map_array[i][j]
-			if tile == "*":
-				map_array[i][j] = Sprite((j, i),green)
-			elif tile == "b":
-				map_array[i][j] = Sprite((j, i), brown)
-			elif tile == "w":
-				map_array[i][j] = Sprite((j, i), water_blue)
-				water_coord.append((j,i))
 
-	
-	return map_array
-
-def draw_tiles(l):
-	for row in l:
-		for tile in row:
-			tile.show(gameDisplay)
-
-def updateMapScreen():
-	draw_map(map_array)
-	pygame.display.update()
-'''
 #main code
-'''
-water_coord = []
-map_array = load_map(water_coord)
-'''
-
-
-#color definitions
-black = (0, 0, 0)
-white = (255, 255, 255)
-red = (255, 0, 0)
-gray = (211, 211, 211)
-
-#pygame initialiization
-'''
-pygame.init()
-
-width = 800
-height = 800
-gameDisplay = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Jubulumdum")
-clock = pygame.time.Clock()
-'''
-
-'''
-#character creation
-alm = Character( 20, 9, 1, 15, 4, 0, 'Alm', (0,0), 1, .10, blue)
-steel_sword = Weapon('steel sword', 'physical', 1)
-alm.equip(steel_sword)
-current_character = alm 
-
-mage = Character( 18, 1, 7, 8, 2, 7, 'Mage', (2,2), .80, .05, blue)
-fire = Weapon('fire', 'magic', 3)
-mage.equip(fire)
-
-#enemy creation
-zombie = Character( 72, 15, 0, 10, 3, 0, 'Zombie', (7,8), .20, .1, red)
-claws = Weapon('claws', 'physical', 5)
-zombie.equip(claws)
-enemies = [zombie]
-'''
 mov = 500
 turn = "player"
-
 done = False
+current_character = alm
+#TODO: initialize zones somewhere...
+alm.zone_up()
 while not done:
-	#TODO: Make a better delay system instead of this
+	#TODO: Make a better delay system instead of this for key presses
 	time.sleep(.09)
 	for event in pygame.event.get():
             #cliking the quit botton
@@ -199,16 +104,26 @@ while not done:
 		if keys[pygame.K_z]:
 			current_character.attack(zombie, gameDisplay)
 	elif turn == "enemy":
-		zombie.moveCloser(current_character)
+		for enemy in enemies:
+			enemyMov = 3
+			while enemyMov!=0:
+				if not enemy.moveCloser(current_character):
+					enemyMov -= 1
+				else:
+					enemyMov = 0
+				draw_map(map_array, allies, enemies)
+				pygame.display.update()
+				time.sleep(1)	
+				
 		mov = 5
-		draw_map(map_array, alm, zombie)
+		draw_map(map_array, allies, enemies)
 		pygame.display.update()
 		message("Player Phase", gameDisplay)
 		turn = "player"
 
 	#checks to see if player turn is over
 	if mov == 0:
-		draw_map(map_array, alm, zombie)
+		draw_map(map_array, allies, enemies)
 		pygame.display.update()
 		message("Enemy Phase", gameDisplay)
 		turn = "enemy"
@@ -217,12 +132,14 @@ while not done:
 
 	#debugging
 	if keys[pygame.K_SPACE]:
-		print(current_character.name)
-		print(current_character.position)
-		print(turn)
+		#print(current_character.name)
+		#print(current_character.position)
+		#print(turn)
+		print(mov)
 	
-	#update the dispaly
-	draw_map(map_array, alm, zombie)
+	#update the display
+	#TODO: don't redraw the map every clock tick if it proves too wasteful
+	draw_map(map_array, allies, enemies)
 	pygame.display.update()
 	clock.tick(60)
 pygame.quit()

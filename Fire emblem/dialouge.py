@@ -2,6 +2,26 @@
 
 import pygame
 from pygame_functions import *
+#functions
+def pollEvents():
+	global DONE
+	while True:
+		for event in pygame.event.get():
+	     		#cliking the quit button
+	     		print("checking events")
+	     		if event.type == pygame.QUIT:
+	     			pygame.quit()
+	     			sys.exit(0)
+	     			done = True
+def pollEvents2():
+	global done
+	for event in pygame.event.get():
+		if event.type == pygame.QUIT:
+	         pygame.quit()
+	         #sys.exit(0)
+	         done = True
+            
+
 
 pygame.init()
 white = (255, 255, 255)
@@ -10,18 +30,15 @@ gameDisplay = pygame.display.set_mode((800, 800))
 gameDisplay.fill(black)
 clock = pygame.time.Clock()
 
-#main game loop
 done = False
+#main game loop
 while not done:
-	for event in pygame.event.get():
-        	#cliking the quit button
-            if event.type == pygame.QUIT:
-                done = True
-    
-	
 	#max characters is width/font size (18 characters)
-	messageBox("Can I has a hamboorgar? Pleaseeeeeeeee!!!!", gameDisplay, 12)
-	pygame.display.update()
+	messageBox("I like African People", gameDisplay, 12)
+	#pygame.display.update()
+	for event in pygame.event.get():
+		if event.type == pygame.QUIT:
+	         done = True
+	         pygame.quit()
 	clock.tick(60)
 
-pygame.quit()
