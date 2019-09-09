@@ -34,7 +34,7 @@ done = False
 #main game loop
 while not done:
 	#max characters is width/font size (18 characters)
-	messageBox("I like African People", gameDisplay, 12)
+	messageBox("Hi", gameDisplay, 12)
 	#pygame.display.update()
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
