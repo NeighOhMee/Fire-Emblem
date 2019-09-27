@@ -1,10 +1,12 @@
 import pygame
+import os
 from Sprite import *
 from Weapon import *
 from Zone import *
 '''
 contains the data and functions for the map
 '''
+CUR_PATH = os.path.dirname(__file__)
 def draw_grid():
 	'''
 	Draws the game grid
@@ -34,7 +36,8 @@ def draw_map(map_array, alies, enemies):
 def load_map(water_coord, zones):
 	#map load
 	#n^2 operation can I make it more efficient?
-	mapFile = open("map1.txt")
+	new_path = os.path.relpath('..\\maps\\map1.txt')
+	mapFile = open(new_path)
 	map_array = []
 	#create map_array
 	for row in mapFile:
